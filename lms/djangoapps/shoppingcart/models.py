@@ -3,6 +3,7 @@
 from collections import namedtuple
 from datetime import datetime
 from decimal import Decimal
+import analytics
 import pytz
 import logging
 import smtplib
@@ -392,6 +393,37 @@ class Order(models.Model):
             csv_file, courses_info = self.generate_registration_codes_csv(orderitems, site_name)
 
         self.send_confirmation_emails(orderitems, self.order_type == OrderTypes.BUSINESS, csv_file, site_name, courses_info)
+        self._emit_purchase_event(orderitems)
+
+    def _emit_purchase_event(self, orderitems):
+        """
+        Emit an analytics purchase event for this OrderItem
+
+        """
+        event_name = 'Completed Order'  # Required event name by Segment IO
+        try:
+            products = []
+            for item in orderitems:
+                course_id = item.course_id.to_deprecated_string() if hasattr(item, 'course_id') else ''
+                mode = item.mode if hasattr(item, 'mode') else ''
+                item = {
+                    'id': item.id,
+                    'sku': course_id,
+                    'name': 'some name',
+                    'price': item.unit_cost,
+                    'quantity': item.qty,
+                    'category': '{type} {mode}'.format(type=type(item), mode=mode)
+                }
+                products.append(item)
+            if settings.FEATURES.get('SEGMENT_IO_LMS') and settings.SEGMENT_IO_LMS_KEY:
+                analytics.track(self.user.id, event_name, {
+                    'orderId': self.id,
+                    'total': self.total_cost,
+                    'currency': self.currency,
+                    'products': products
+                })
+        except Exception:
+            log.exception(u'Unable to emit event %s for user %s and order %s', event_name, self.user.id, self.id)
 
     def add_billing_details(self, company_name='', company_contact_name='', company_contact_email='', recipient_name='',
                             recipient_email='', customer_reference_number=''):
