@@ -107,8 +107,8 @@ class TestVideoOutline(ModuleStoreTestCase, APITestCase):
 
     @ddt.data(*ROLE_CASES)
     @ddt.unpack
-    def test_privileged_access(self, role, should_succeed):
-        nonmobile = CourseFactory.create()
+    def test_non_mobile_access(self, role, should_succeed):
+        nonmobile = CourseFactory.create(mobile_available=False)
 
         if role:
             role(nonmobile.id).add_users(self.user)
