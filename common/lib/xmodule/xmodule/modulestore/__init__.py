@@ -455,7 +455,7 @@ class ModuleStoreAssetWriteInterface(ModuleStoreAssetInterface):
             source_course_key (CourseKey): identifier of course to copy from
             dest_course_key (CourseKey): identifier of course to copy to
         """
-        pass
+        raise NotImplementedError()
 
 
 # pylint: disable=abstract-method
