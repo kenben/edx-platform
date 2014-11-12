@@ -73,19 +73,9 @@ class TestUserApi(ModuleStoreTestCase, APITestCase):
         else:
             self.assertEqual(len(courses), 0)
 
-    def test_non_mobile_enrollments(self):
-        url = self._enrollment_url()
-        non_mobile_course = CourseFactory.create(mobile_available=False)
-        self.client.login(username=self.username, password=self.password)
-
-        self._enroll(non_mobile_course)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, [])    # pylint: disable=maybe-no-member
-
     @ddt.data(*ROLE_CASES)
     @ddt.unpack
-    def test_privileged_enrollments(self, role, should_succeed):
+    def test_non_mobile_enrollments(self, role, should_succeed):
         non_mobile_course = CourseFactory.create(mobile_available=False)
 
         if role:
