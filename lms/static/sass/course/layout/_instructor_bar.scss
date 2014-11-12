@@ -1,51 +1,52 @@
 nav.instructor-bar {
   @include clearfix;
   @include box-sizing(border-box);
-  background-color: $black-t2;
+  background-color: $black-t3;
   margin: 0px auto 0px;
-  padding: $baseline;
+  padding: ($baseline*.75);
   width: 100%;
 
   .inner-wrapper {
     margin: 0 auto;
-    max-width: 1200px;
+    max-width: 1160px;
     width: flex-grid(12);
-    color: $white;
   }
 
-  .view-mode-select {
-    background-color: $black-t2;
-    color: $white;
-    border: none;
+  .instructor-bar-title {
+    @extend %t-title6;
+    @extend %t-weight1;
+    display: inline-block;
+    margin: 0;
+    color: $gray-l6;
+    vertical-align: middle;
+    font-weight: 200;
+    border-right: 1px solid $gray;
+    padding-right: $baseline;
   }
 
-  ol.instructor-actions {
-    @include border-top-radius(4px);
-    @include clearfix;
-    padding: 10px 0 0 0;
+  .instructor-actions {
+    display: inline-block;
+    margin: 0 ($baseline/2);
 
-    li {
-      @include float(left);
-      list-style: none;
+    // UI: Instructor Action
+    .instructor-action {
+      display: inline-block;
+      margin: 0 ($baseline/2);
 
-      a {
-        color: darken($lighter-base-font-color, 20%);
-        display: block;
-        text-align: center;
-        padding: 8px 13px 12px;
-        font-size: 14px;
-        font-weight: 400;
-        text-decoration: none;
-        text-shadow: 0 1px rgb(255,255,255);
+      // CASE: Preview Mode Action
+      &.action-preview-mode {
 
-        &:hover, &:focus {
-          color: $base-font-color;
+        .view-mode-label {
+          color: $gray-l6;
+          text-shadow: none;
         }
 
-        &.active {
-          color: $blue;
+        .view-mode-select {
+          background-color: $notify-banner-bg-1;
+          color: $gray-l6;
         }
       }
+
     }
   }
 }
