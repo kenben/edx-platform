@@ -1,13 +1,14 @@
 """
 Tests for the Shopping Cart Models
 """
+from analytics import track
 from decimal import Decimal
 import datetime
 
 import smtplib
 from boto.exception import BotoServerError  # this is a super-class of SESError and catches connection errors
 
-from mock import patch, MagicMock
+from mock import patch, MagicMock, call
 import pytz
 from django.core import mail
 from django.conf import settings
@@ -48,6 +49,11 @@ class OrderTest(ModuleStoreTestCase):
         for __ in xrange(1, 5):
             self.other_course_keys.append(CourseFactory.create().id)
         self.cost = 40
+
+        # Add mock tracker for event testing.
+        patcher = patch('shoppingcart.models.analytics')
+        self.mock_tracker = patcher.start()
+        self.addCleanup(patcher.stop)
 
     def test_get_cart_for_user(self):
         # create a cart
@@ -148,7 +154,10 @@ class OrderTest(ModuleStoreTestCase):
         for item in cart.orderitem_set.all():
             self.assertEqual(item.status, 'purchased')
 
+    @override_settings(SEGMENT_IO_LMS_KEY="foobar")
     def test_purchase(self):
+        settings.FEATURES['SEGMENT_IO_LMS'] = True
+
         # This test is for testing the subclassing functionality of OrderItem, but in
         # order to do this, we end up testing the specific functionality of
         # CertificateItem, which is not quite good unit test form. Sorry.
@@ -166,6 +175,27 @@ class OrderTest(ModuleStoreTestCase):
         self.assertIn(settings.PAYMENT_SUPPORT_EMAIL, mail.outbox[0].body)
         self.assertIn(unicode(cart.total_cost), mail.outbox[0].body)
         self.assertIn(item.additional_instruction_text, mail.outbox[0].body)
+
+        # Assert Google Analytics event fired for purchase.
+        self.mock_tracker.track.assert_called_once_with(  # pylint: disable=E1103
+            1,
+            'Completed Order',
+            {
+                'orderId': 1,
+                'currency': 'usd',
+                'total': '40',
+                'products': [
+                    {
+                        'sku': u'org.44/course_44/Run_44',
+                        'category': 'CertificateItem honor',
+                        'price': '40',
+                        'id': 1,
+                        'quantity': 1
+                    }
+                ]
+            },
+            context={'Google Analytics': {'clientId': None}}
+        )
 
     def test_purchase_item_failure(self):
         # once again, we're testing against the specific implementation of

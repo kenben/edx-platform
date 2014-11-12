@@ -31,6 +31,7 @@ from config_models.models import ConfigurationModel
 from course_modes.models import CourseMode
 from edxmako.shortcuts import render_to_string
 from student.models import CourseEnrollment, UNENROLL_DONE
+from eventtracking import tracker
 from util.query import use_read_replica_if_available
 from xmodule_django.models import CourseKeyField
 
@@ -409,19 +410,25 @@ class Order(models.Model):
                 item = {
                     'id': item.id,
                     'sku': course_id,
-                    'name': 'some name',
-                    'price': item.unit_cost,
+                    'price': str(item.unit_cost),
                     'quantity': item.qty,
-                    'category': '{type} {mode}'.format(type=type(item), mode=mode)
+                    'category': '{type} {mode}'.format(type=type(item).__name__, mode=mode)
                 }
                 products.append(item)
+
             if settings.FEATURES.get('SEGMENT_IO_LMS') and settings.SEGMENT_IO_LMS_KEY:
-                analytics.track(self.user.id, event_name, {
-                    'orderId': self.id,
-                    'total': self.total_cost,
+                tracking_context = tracker.get_tracker().resolve_context()
+                analytics.track(self.user.id, event_name, {  # pylint: disable=E1103
+                    'orderId': self.id,  # pylint: disable=E1103
+                    'total': str(self.total_cost),
                     'currency': self.currency,
                     'products': products
+                }, context={
+                    'Google Analytics': {
+                        'clientId': tracking_context.get('client_id')
+                    }
                 })
+
         except Exception:
             log.exception(u'Unable to emit event %s for user %s and order %s', event_name, self.user.id, self.id)
 
