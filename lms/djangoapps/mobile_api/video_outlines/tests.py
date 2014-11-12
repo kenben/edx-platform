@@ -14,9 +14,10 @@ from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.conf import settings
 from rest_framework.test import APITestCase
-from student import auth
+from mobile_api.tests import ROLE_CASES
 from edxval import api
 from uuid import uuid4
+
 import copy
 
 TEST_DATA_CONTENTSTORE = copy.deepcopy(settings.CONTENTSTORE)
@@ -104,14 +105,9 @@ class TestVideoOutline(ModuleStoreTestCase, APITestCase):
 
         self.client.login(username=self.user.username, password='test')
 
-    @ddt.data(
-        (auth.CourseBetaTesterRole, True),
-        (auth.CourseStaffRole, True),
-        (auth.CourseInstructorRole, True),
-        (None, False)
-    )
+    @ddt.data(*ROLE_CASES)
     @ddt.unpack
-    def test_non_mobile_access(self, role, should_succeed):
+    def test_privileged_access(self, role, should_succeed):
         nonmobile = CourseFactory.create()
 
         if role:

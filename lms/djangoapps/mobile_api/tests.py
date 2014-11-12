@@ -15,18 +15,19 @@ from mobile_api.utils import should_allow_mobile_access
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 
+ROLE_CASES = (
+        (auth.CourseBetaTesterRole, True),
+        (auth.CourseStaffRole, True),
+        (auth.CourseInstructorRole, True),
+        (None, False)
+)
 
 @ddt.ddt
 class TestMobileApiUtils(ModuleStoreTestCase, APITestCase):
     """
     Tests for mobile API utilities
     """
-    @ddt.data(
-        (auth.CourseBetaTesterRole, True),
-        (auth.CourseStaffRole, True),
-        (auth.CourseInstructorRole, True),
-        (None, False)
-    )
+    @ddt.data(*ROLE_CASES)
     @ddt.unpack
     def test_mobile_role_access(self, role, should_have_access):
         """
