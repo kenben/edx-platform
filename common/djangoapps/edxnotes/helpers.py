@@ -128,7 +128,6 @@ def get_notes(user, course):
         return collection
 
     store = modulestore()
-    orphans = store.get_orphans(course.id)
     filtered_collection = list()
     with store.bulk_operations(course.id):
         for model in collection:
@@ -138,31 +137,16 @@ def get_notes(user, course):
             if not has_access(user, 'load', item, course_key=course.id):
                 continue
 
-            if is_orphan(item, orphans):
-                # Skip the note if quote is empty and item is orphan.
-                if not model['quote']:
-                    continue
-                model['text'] = None
-
             display_name, url = get_parent_info(course, store, usage_key)
             model.update({
-                'unit': {
-                    'display_name': display_name,
-                    'url': url,
+                u'unit': {
+                    u'display_name': display_name,
+                    u'url': url,
                 }
             })
             filtered_collection.append(model)
 
     return filtered_collection
-
-
-def is_orphan(item, orphans):
-    """
-    Checks if current item is orphaned.
-    """
-    if item in orphans:
-        return True
-    return False
 
 
 def get_parent(store, usage_key):
