@@ -13,6 +13,10 @@
                 var context = this.model.toContext();
                 this.$el.html(this.template(context));
                 return this;
+            },
+
+            destroy: function () {
+                this.remove();
             }
         });
 
