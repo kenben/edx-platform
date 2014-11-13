@@ -30,6 +30,7 @@ def edxnotes(cls):
                 'params': {
                     # Use camelCase to name keys.
                     'usageId': unicode(self.scope_ids.usage_id).encode('utf-8'),
+                    'courseId': unicode(self.runtime.course_id).encode('utf-8'),
                     'token': get_token(),
                     'endpoint': get_storage_url(),
                     'debug': settings.DEBUG,

@@ -2,8 +2,6 @@
 <%
     if user:
         params.update({'user': user.username})
-    if course:
-        params.update({'courseId': course.id})
 %>
 <div id="edx-notes-wrapper-${uid}" class="edx-notes-wrapper">
     <div class="edx-notes-content">${content}</div>
