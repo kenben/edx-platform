@@ -552,6 +552,80 @@ class CourseMetadataEditingTest(CourseTestCase):
         )
         self.assertNotIn('giturl', test_model)
 
+    @patch.dict(settings.FEATURES, {'ENABLE_EDXNOTES': True})
+    def test_edxnotes_present(self):
+        """
+        If feature flag ENABLE_EDXNOTES is on, show the setting as a non-deprecated Advanced Setting.
+        """
+        test_model = CourseMetadata.fetch(self.fullcourse)
+        self.assertIn('edxnotes', test_model)
+
+    @patch.dict(settings.FEATURES, {'ENABLE_EDXNOTES': False})
+    def test_edxnotes_not_present(self):
+        """
+        If feature flag ENABLE_EDXNOTES is off, don't show the setting at all on the Advanced Settings page.
+        """
+        test_model = CourseMetadata.fetch(self.fullcourse)
+        self.assertNotIn('edxnotes', test_model)
+
+    @patch.dict(settings.FEATURES, {'ENABLE_EDXNOTES': False})
+    def test_validate_update_filtered_edxnotes_off(self):
+        """
+        If feature flag is off, then edxnotes must be filtered.
+        """
+        # pylint: disable=unused-variable
+        is_valid, errors, test_model = CourseMetadata.validate_and_update_from_json(
+            self.course,
+            {
+                "edxnotes": {"value": "true"},
+            },
+            user=self.user
+        )
+        self.assertNotIn('edxnotes', test_model)
+
+    @patch.dict(settings.FEATURES, {'ENABLE_EDXNOTES': True})
+    def test_validate_update_filtered_edxnotes_on(self):
+        """
+        If feature flag is on, then edxnotes must not be filtered.
+        """
+        # pylint: disable=unused-variable
+        is_valid, errors, test_model = CourseMetadata.validate_and_update_from_json(
+            self.course,
+            {
+                "edxnotes": {"value": "true"},
+            },
+            user=self.user
+        )
+        self.assertIn('edxnotes', test_model)
+
+    @patch.dict(settings.FEATURES, {'ENABLE_EDXNOTES': True})
+    def test_update_from_json_filtered_edxnotes_on(self):
+        """
+        If feature flag is on, then edxnotes must be updated.
+        """
+        test_model = CourseMetadata.update_from_json(
+            self.course,
+            {
+                "edxnotes": {"value": "true"},
+            },
+            user=self.user
+        )
+        self.assertIn('edxnotes', test_model)
+
+    @patch.dict(settings.FEATURES, {'ENABLE_EDXNOTES': False})
+    def test_update_from_json_filtered_edxnotes_off(self):
+        """
+        If feature flag is on, then edxnotes must not be updated.
+        """
+        test_model = CourseMetadata.update_from_json(
+            self.course,
+            {
+                "edxnotes": {"value": "true"},
+            },
+            user=self.user
+        )
+        self.assertNotIn('edxnotes', test_model)
+
     def test_validate_and_update_from_json_correct_inputs(self):
         is_valid, errors, test_model = CourseMetadata.validate_and_update_from_json(
             self.course,

@@ -112,7 +112,7 @@ def get_notes(user, course):
     # TODO: Remove this line before merge!!!
     # create_notes(20, user.username, course)
     # end TODO
-    url = get_storage_url("/annotations")
+    url = get_endpoint("/annotations")
     response = requests.get(url, params={
         'user': user.username,
         'course_id': unicode(course.id).encode('utf-8'),
@@ -197,7 +197,7 @@ def get_parent_info(course, store, usage_key):
     return (display_name, url)
 
 
-def get_storage_url(path=""):
+def get_endpoint(path=""):
     """
     Returns endpoint.
     """

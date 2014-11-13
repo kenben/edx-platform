@@ -48,24 +48,24 @@ class EdxNotesHelpersTest(TestCase):
 
         self.assertTrue(helpers.edxnotes_enabled_for_course(self.course))
 
-    def test_storage_url(self):
+    def test_get_endpoint(self):
         """
         Tests that storage_url method returns correct values.
         """
         with patch.dict("django.conf.settings.EDXNOTES_INTERFACE", {"url": "http://example.com/"}):
-            self.assertEqual("http://example.com/api/v1", helpers.get_storage_url())
+            self.assertEqual("http://example.com/api/v1", helpers.get_endpoint())
 
         with patch.dict("django.conf.settings.EDXNOTES_INTERFACE", {"url": "http://example.com"}):
-            self.assertEqual("http://example.com/api/v1", helpers.get_storage_url())
+            self.assertEqual("http://example.com/api/v1", helpers.get_endpoint())
 
         with patch.dict("django.conf.settings.EDXNOTES_INTERFACE", {"url": "http://example.com"}):
-            self.assertEqual("http://example.com/api/v1/some_path", helpers.get_storage_url("/some_path"))
+            self.assertEqual("http://example.com/api/v1/some_path", helpers.get_endpoint("/some_path"))
 
         with patch.dict("django.conf.settings.EDXNOTES_INTERFACE", {"url": "http://example.com"}):
-            self.assertEqual("http://example.com/api/v1/some_path", helpers.get_storage_url("some_path"))
+            self.assertEqual("http://example.com/api/v1/some_path", helpers.get_endpoint("some_path"))
 
         with patch.dict("django.conf.settings.EDXNOTES_INTERFACE", {"url": None}):
-            self.assertRaises(ImproperlyConfigured, helpers.get_storage_url)
+            self.assertRaises(ImproperlyConfigured, helpers.get_endpoint)
 
 
 @skipUnless(settings.FEATURES["ENABLE_EDXNOTES"], 'EdxNotes feature needs to be enabled.')
@@ -89,7 +89,7 @@ class EdxNotesViewsTest(TestCase):
         modulestore().update_item(self.course, self.user.id)
 
         response = self.client.get(self.notes_page_url)
-        self.assertIn("<h1>Notes</h1>", response.content)
+        self.assertContains("<h1>Notes</h1>", response.content)
 
     @patch.dict("django.conf.settings.FEATURES", {"ENABLE_EDXNOTES": False})
     def test_edxnotes_view_is_disabled(self):

@@ -2,7 +2,7 @@
 Decorators related to edXNotes.
 """
 from edxnotes.helpers import (
-    get_storage_url,
+    get_endpoint,
     get_token,
     generate_uid,
 )
@@ -32,7 +32,7 @@ def edxnotes(cls):
                     'usageId': unicode(self.scope_ids.usage_id).encode('utf-8'),
                     'courseId': unicode(self.runtime.course_id).encode('utf-8'),
                     'token': get_token(),
-                    'endpoint': get_storage_url(),
+                    'endpoint': get_endpoint(),
                     'debug': settings.DEBUG,
                 },
             })

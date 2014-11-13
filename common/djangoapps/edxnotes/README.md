@@ -1,5 +1,5 @@
 EdxNotes Django App
-+++++++++++++++++++
+===================
 
 To run Django tests use:
 `paver test_system -t common/djangoapps/edxnotes/tests.py`
