@@ -1,4 +1,5 @@
 <%! from django.utils.translation import ugettext as _ %>
+<%! import json %>
 <%namespace name='static' file='static_content.html'/>
 <%inherit file="main.html" />
 
@@ -20,7 +21,7 @@
                 <p><span class="spin"><i class="icon-refresh"></i></span> <span class="copy">${_("Loading...")}</span></p>
             </div>
         % else:
-            <section class="no-content">${_('You do not have any notes.')}</section>
+            <section class="no-content">${_('You do not have any notes within the course.')}</section>
         % endif
         </div>
     </div>
@@ -41,7 +42,7 @@
     (function (require) {
         require(['js/edxnotes/views/page_factory'], function (NotesFactory) {
             var pageView = new NotesFactory({
-                notesList: ${notes},
+                notesList: ${json.dumps(notes)},
                 debugMode: ${debug},
                 authToken: '${token}',
                 user: '${user.username}',

@@ -121,11 +121,11 @@ def get_notes(user, course):
     try:
         collection = json.loads(response.content)
     except ValueError:
-        return json.dumps([])
+        return []
 
     # if collection is empty, just return it.
     if not collection:
-        return response.content
+        return collection
 
     store = modulestore()
     orphans = store.get_orphans(course.id)
@@ -138,7 +138,7 @@ def get_notes(user, course):
             if not has_access(user, 'load', item, course_key=course.id):
                 continue
 
-            if is_orphan(item, model, orphans):
+            if is_orphan(item, orphans):
                 # Skip the note if quote is empty and item is orphan.
                 if not model['quote']:
                     continue
@@ -153,23 +153,16 @@ def get_notes(user, course):
             })
             filtered_collection.append(model)
 
-    return json.dumps(filtered_collection)
+    return filtered_collection
 
 
-def is_orphan(item, model, orphans):
+def is_orphan(item, orphans):
     """
     Checks if current item is orphaned.
     """
     if item in orphans:
         return True
     return False
-
-
-def get_item_content(item):
-    """
-    Returns content for the appropriate item.
-    """
-    return getattr(item, 'data', '')
 
 
 def get_parent(store, usage_key):
@@ -213,7 +206,7 @@ def get_storage_url(path=""):
         url = interface["url"]
         if not url.endswith("/"):
             url += "/"
-        if not path.startswith("/"):
+        if path and not path.startswith("/"):
             path = "/" + path
 
         return url + "api/v1" + path
