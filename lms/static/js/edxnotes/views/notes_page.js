@@ -16,6 +16,8 @@
                 this.$('.course-info').append(this.view.$el);
                 this.hideLoadingIndicator();
 
+                this.$el.append(this.view.$el); // Added for Jasmine tests
+
                 return this;
             },
 
