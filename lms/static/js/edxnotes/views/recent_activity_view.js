@@ -3,10 +3,8 @@
     define(['underscore', 'backbone', 'js/edxnotes/views/note_item'],
     function (_, Backbone, NoteItemView) {
         var RecentActivityView = Backbone.View.extend({
-            events: {
-                'click': 'destroy'
-            },
             className: 'edxnotes-page-items-list',
+
             render: function () {
                 this.items = this.collection.map(function(model) {
                     var item = new NoteItemView({
